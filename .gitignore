@@ -1,0 +1,7 @@
+# Ignorar los node_modules en backend y frontend
+/backend/node_modules/
+frontend/node_modules/
+
+# Ignorar el archivo .env con las credenciales
+/backend/.env
+/mysql-docker/.env
