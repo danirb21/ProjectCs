@@ -3,8 +3,7 @@ require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
 const Torneo=require("../models/event.js")
 const axios = require("axios");
 const cron = require("node-cron");
-const conectarMysql=require("../config/mysqlConnection");
-const { get } = require("http");
+const bdComponent=require("../database/bdComponent.js")
 
 async function getEvents(startdate) {
     try {
@@ -23,25 +22,20 @@ async function getEvents(startdate) {
     }
 }
 
-async function actualizarTorneos(startdate) {
-    const connection = await conectarMysql();
+async function updateEvents(startdate, host) {
+    const connection = new bdComponent(host)
     const torneos = await getEvents(startdate);
     
     for (const torneo of torneos) {
-        const { event_id, event_name, prize_pool, lan } = torneo;
-        
+        const { event_id, event_name, prize_pool, lan } = torneo;   
         try {
-            await connection.execute(
-                //"INSERT INTO torneos (event_id, event_name, prize_pool, lan) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE event_name = VALUES(event_name), prize_pool = VALUES(prize_pool), lan = VALUES(lan)",
-                [event_id, event_name, prize_pool, lan]
-            );
+            connection.update(process.env.MYSQL_DATABASE,torneo)
             console.log(`Torneo ${event_name} actualizado.`);
         } catch (error) {
             console.error("Error insertando torneo", error);
         }
     }
-    
-    await connection.end();
+    connection.close();
 }
 /*
 // Ejecutar cada 24 horas
