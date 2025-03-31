@@ -1,48 +1,56 @@
 const path = require("path");
 require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
-const Torneo=require("../models/event.js")
+const Torneo = require("../models/event.js")
 const axios = require("axios");
 const cron = require("node-cron");
-const bdComponent=require("../database/bdComponent.js")
+const bdComponent = require("../database/bdComponent.js");
+const { start } = require("repl");
 
-async function getEvents(startdate) {
+const headers = {
+    "accept": "application/json",
+    "authorization": "Apikey " + process.env.API_KEY
+}
+
+
+async function getEvents(startdate, endDate, limit) {
+    let europeanTournaments
+    let eventos = []
     try {
-        const json = await axios.get("URL_DE_LA_API_DE_LIQUIPEDIA").then(resp =>{
-            const eventsJson=JSON.parse(resp.data);
-            let eventos=[];
-            eventsJson.array.forEach(element => {
-                const torneo=new Torneo(element.pageid, element.name,element.prizepool,element.lan)
-                eventos.push(torneo);
-            });
-        }); // Reemplazar con la URL real
+        await axios.get(process.env.API_LIQUIPEDIA_URL_CS + "&conditions=[[startdate::>" + startdate + "]] AND [[enddate::<" + endDate + "]]" + "&limit=" + limit, { headers }).then(resp => {
+            const tournaments = resp.data.result;
+            // console.log(tournaments)
+            europeanTournaments = tournaments.filter(tournament => {
+                return tournament.locations.region1 === "Europe" || tournament.locations.region1 === "World"
+            }
+            )
+        });
+        let bol;
+        europeanTournaments.forEach(element => {
+            bol = element.type === "Offline"
+            eventos.push(new Torneo(element.pageid, element.name, element.prizepool, bol))
+        });
         return eventos;
     } catch (error) {
         console.error("Error obteniendo datos de Liquipedia", error);
         return [];
     }
 }
+/*
+insertEvents("2025-3-31", "2025-4-14", 1000, "localhost")
+    .then(() => console.log("PROCESO REALIZADO CON ÉXITO :)"))
+    .catch((err) => console.error("Error:", err));
+*/
 
-async function updateEvents(startdate, host) {
-    const connection = new bdComponent(host)
-    const torneos = await getEvents(startdate);
-    
+async function insertEvents(startdate, endDate, limit, host) {
+    const connection = new bdComponent(host);
+    const torneos = await getEvents(startdate, endDate, limit);
+
     for (const torneo of torneos) {
-        const { event_id, event_name, prize_pool, lan } = torneo;   
         try {
-            connection.update(process.env.MYSQL_DATABASE,torneo)
-            console.log(`Torneo ${event_name} actualizado.`);
+            await connection.insert("events", torneo, "");
         } catch (error) {
-            console.error("Error insertando torneo", error);
+            console.error("Error actualizando torneo", error);
         }
     }
-    connection.close();
+    await connection.close();
 }
-/*
-// Ejecutar cada 24 horas
-cron.schedule("0 0 * * *", () => {
-    console.log("Ejecutando cron job para actualizar torneos");
-    actualizarTorneos();
-});
-
-console.log("Cron job iniciado. Se ejecutará cada 24 horas.");
-*/

@@ -58,7 +58,7 @@ class ComponentBd {
         const [result] = await this.pool.query(query, values);
         return result.affectedRows > 0;
     }
-    async close(){
+    async close() {
         this.pool.end();
     }
 }
