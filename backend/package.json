@@ -18,7 +18,8 @@
     "mathjs": "^14.4.0",
     "mysql": "^2.18.1",
     "mysql2": "^3.14.0",
-    "node-cron": "^3.0.3"
+    "node-cron": "^3.0.3",
+    "puppeteer": "^24.5.0"
   },
   "description": ""
 }

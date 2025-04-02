@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking de Valve</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Ranking de Valve (Últimos equipos)</h1>
+
+    <table id="rankingTable">
+        <thead>
+            <tr>
+                <th>Posición</th>
+                <th>Equipo</th>
+                <th>Puntos</th>
+                <th>Región</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Los datos se llenarán aquí con JavaScript -->
+        </tbody>
+    </table>
+
+    <script>
+   fetch("http://localhost:5000/latest-valve-ranking")
+  .then(response => response.json())  // Convierte la respuesta a JSON
+  .then(data => {
+      console.log("Datos recibidos:", data);  // Verifica los datos
+
+      const tableBody = document.querySelector("#rankingTable tbody");
+
+      // Verifica si 'data' es un array y si no está vacío
+      if (Array.isArray(data) && data.length > 0) {
+          // Recorre el array y verifica las propiedades de cada objeto
+          data.forEach((team, index) => {
+              console.log(`Equipo ${index + 1}:`, team);  // Imprime cada equipo
+
+              // Verifica que cada equipo tenga las propiedades esperadas
+              if (team.rank && team.team && team.points && team.region) {
+                  const row = document.createElement("tr");
+
+                  const rankCell = document.createElement("td");
+                  rankCell.textContent = team.rank;
+                  row.appendChild(rankCell);
+
+                  const teamCell = document.createElement("td");
+                  teamCell.textContent = team.team;
+                  row.appendChild(teamCell);
+
+                  const pointsCell = document.createElement("td");
+                  pointsCell.textContent = team.points;
+                  row.appendChild(pointsCell);
+
+                  const regionCell = document.createElement("td");
+                  regionCell.textContent = team.region;
+                  row.appendChild(regionCell);
+
+                  tableBody.appendChild(row);
+              } else {
+                  console.error(`El equipo en la posición ${index + 1} no tiene las propiedades esperadas.`);
+              }
+          });
+      } else {
+          // Si el array está vacío
+          const row = document.createElement("tr");
+          const messageCell = document.createElement("td");
+          messageCell.setAttribute("colspan", "4");
+          messageCell.textContent = "No se encontraron rankings.";
+          row.appendChild(messageCell);
+          tableBody.appendChild(row);
+      }
+  })
+  .catch(error => {
+      console.error('Error al obtener los datos del ranking:', error);
+      const tableBody = document.querySelector("#rankingTable tbody");
+      const row = document.createElement("tr");
+      const messageCell = document.createElement("td");
+      messageCell.setAttribute("colspan", "4");
+      messageCell.textContent = "Hubo un error al obtener los datos.";
+      row.appendChild(messageCell);
+      tableBody.appendChild(row);
+  });
+
+
+    </script>
+
+</body>
+</html>
