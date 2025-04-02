@@ -14,19 +14,17 @@ async function getLatestValveRanking() {
         let day = date.getDate();
 
         const url = "https://www.hltv.org/valve-ranking/teams/" + year + "/" + month + "/" + day + "/region/Europe";
-        //console.log("🔍 Probando con la URL: " + url);
 
         try {
             await page.goto(url, { waitUntil: "domcontentloaded", timeout: 10000 });
 
-            // Verificar si la página tiene contenido (si hay ranking)
+            // Verifica si la página tiene contenido (si hay ranking)
             const hasRanking = await page.$(".ranked-team.standard-box");
 
             if (hasRanking) {
-                console.log("✅ Encontrado ranking en: " + url);
                 rankings = await page.evaluate(() => {
                     return Array.from(document.querySelectorAll(".ranked-team.standard-box")).map(team => {
-                        // Extraemos el texto que contiene los puntos, y luego extraemos el número
+            
                         const pointsText = team.querySelector(".points")?.textContent.trim() || "Unknown";
                         const pointsMatch = pointsText.match(/\d+/); 
 
@@ -41,12 +39,12 @@ async function getLatestValveRanking() {
 
                 found = true; 
             } else {
-                console.log("❌ No hay ranking en: " + url + ", probando con un día antes...");
+                console.log(" No hay ranking en: " + url + ", probando con un día antes...");
                 date.setDate(date.getDate() - 1);
                 maxAttempts--; 
             }
         } catch (error) {
-            console.error("❌ Error al acceder a " + url + ":", error);
+            console.error(" Error al acceder a " + url + ":", error);
             date.setDate(date.getDate() - 1); 
             maxAttempts--; 
         }
@@ -55,7 +53,7 @@ async function getLatestValveRanking() {
     await browser.close();
 
     if (!found) {
-         console.log("🚨 No se encontró un ranking en los últimos 30 días.");
+         console.log(" No se encontró un ranking en los últimos 30 días.");
         return [];
     }
 
