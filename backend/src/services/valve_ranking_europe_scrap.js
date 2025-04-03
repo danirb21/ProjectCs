@@ -9,14 +9,12 @@ export async function getLatestValveRanking(year, day) {
 
     let rankings = [];
 
-    // Construir la URL con la fecha proporcionada
+    
     const url = `https://www.hltv.org/valve-ranking/teams/${year}/${lettermonth}/${day}/region/Europe`;
 
     try {
-        // Ir a la URL correspondiente
         await page.goto(url, { waitUntil: "domcontentloaded", timeout: 10000 });
 
-        // Verificar si la página contiene el ranking
         const hasRanking = await page.$(".ranked-team.standard-box");
 
         if (hasRanking) {
@@ -37,19 +35,15 @@ export async function getLatestValveRanking(year, day) {
                 });
             });
         } else {
-            // Si no se encuentra el ranking, lanzar un error
             throw new Error(`No se encontró el ranking en la fecha: ${year}-${month}-${day}`);
         }
     } catch (error) {
-        // Manejo de errores
         console.error("Error:", error.message);
         await browser.close();
         return []; // Devuelve un arreglo vacío si no hay datos
     }
-
     await browser.close();
 
-    // Devuelve los datos del ranking y la fecha consultada
     return { rankings, date: { year: year, month: date.getMonth() + 1, day: day } };
 }
 
@@ -67,7 +61,7 @@ export async function checkRanking(path) {
             if (jsonDateFile.date.day === (date.getDay()-1) && jsonDateFile.date.year === date.getFullYear() && jsonDateFile.date.month === (date.getMonth() + 1)) {
                 itsToday = true;
             }
-            console.log("ES HOY: " + itsToday)
+            //console.log("ES HOY: " + itsToday)
 
             if (!itsToday) {
                 // Sino es hoy, obtiene el ranking más reciente scrap
@@ -76,7 +70,7 @@ export async function checkRanking(path) {
                 // Escribe el nuevo ranking en el archivo
                 await printLatestRankingValveJson(latestData, path);
             } else {
-                latestData = JSON.parse(fs1.readFileSync(path));
+                latestData = JSON.parse(fs1.readFileSync(path)); //si es hoy se lee el ranking desde el fichero
             }
         }
     } catch (err) {
