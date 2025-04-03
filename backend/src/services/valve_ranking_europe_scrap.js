@@ -9,9 +9,9 @@ export async function getLatestValveRanking(year, day) {
 
     let rankings = [];
 
-    
-    const url = `https://www.hltv.org/valve-ranking/teams/${year}/${lettermonth}/${day}/region/Europe`;
 
+    const url = `https://www.hltv.org/valve-ranking/teams/${year}/${lettermonth}/${day}/region/Europe`;
+    console.log(url)
     try {
         await page.goto(url, { waitUntil: "domcontentloaded", timeout: 10000 });
 
@@ -56,19 +56,25 @@ export async function checkRanking(path) {
         if (stat.isFile()) {
             const data = await fs.readFile(path, 'utf8'); // Lee la fecha del archivo
             const jsonDateFile = JSON.parse(data); //fecha fichero
+
             //console.log("Dia Fichero: " + jsonDateFile.date.day + " Mes Fichero: " + jsonDateFile.date.month + " Anio fichero: " + jsonDateFile.date.year)
-            //console.log("Dia Actual: " + (date.getDay() - 1) + " Mes Actual: " + (date.getMonth() + 1) + " Anio Actual: " + date.getFullYear())
-            if (jsonDateFile.date.day === (date.getDay()-1) && jsonDateFile.date.year === date.getFullYear() && jsonDateFile.date.month === (date.getMonth() + 1)) {
+           // console.log("Dia Actual: " + (date.getDay()) + " Mes Actual: " + (date.getMonth() + 1) + " Anio Actual: " + date.getFullYear())
+           
+            if (jsonDateFile.date.day === (date.getDay() - 1) && jsonDateFile.date.year === date.getFullYear() && jsonDateFile.date.month === (date.getMonth() + 1)) {
                 itsToday = true;
             }
-            //console.log("ES HOY: " + itsToday)
+            console.log("ES HOY: " + itsToday)
 
             if (!itsToday) {
                 // Sino es hoy, obtiene el ranking más reciente scrap
-                latestData = await getLatestValveRanking(date.getFullYear(), date.getMonth(), date.getDay() - 1);
-
-                // Escribe el nuevo ranking en el archivo
-                await printLatestRankingValveJson(latestData, path);
+                latestData = await getLatestValveRanking(date.getFullYear(), date.getDay() - 1);
+                if (latestData.length != 0) {
+                    // Escribe el nuevo ranking en el archivo
+                    await printLatestRankingValveJson(latestData, path);
+                } else {
+                    //console.log("Leyendo del fichero...")
+                    latestData = JSON.parse(fs1.readFileSync(path)); //sino existe ranking en hltv se lee del fichero
+                }
             } else {
                 latestData = JSON.parse(fs1.readFileSync(path)); //si es hoy se lee el ranking desde el fichero
             }
