@@ -40,15 +40,31 @@ class ComponentBd {
     }
 
     async update(table, data, conditions) {
-        const setClause = Object.keys(data).map((key) => `${key} = ?`).join(", ");
-        const whereClause = Object.keys(conditions).map((key) => `${key} = ?`).join(" AND ");
+        const setClause = Object.keys(data)
+            .map((key) => `${key} = ?`)
+            .join(", ");
 
+        const whereParts = [];
+        const values = [...Object.values(data)];
+
+        for (const key in conditions) {
+            const condition = conditions[key];
+            if (typeof condition === "object" && condition.raw) {
+                whereParts.push(`${condition.raw}`);
+                values.push(condition.value);
+            } else {
+                whereParts.push(`${key} = ?`);
+                values.push(condition);
+            }
+        }
+
+        const whereClause = whereParts.join(" AND ");
         const query = `UPDATE ${table} SET ${setClause} WHERE ${whereClause}`;
-        const values = [...Object.values(data), ...Object.values(conditions)];
 
         const [result] = await this.pool.query(query, values);
         return result.affectedRows > 0;
     }
+
 
     async delete(table, conditions) {
         const whereClause = Object.keys(conditions).map((key) => `${key} = ?`).join(" AND ");

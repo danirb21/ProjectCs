@@ -1,6 +1,7 @@
 import puppeteer from "puppeteer"
 import fs from "fs/promises"
 import fs1 from "fs"
+import ComponentBd from "../database/bdComponent.js"
 export async function getLatestValveRanking(year, day) {
     const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
@@ -8,10 +9,8 @@ export async function getLatestValveRanking(year, day) {
     const lettermonth = date.toLocaleString("en-us", { month: "long" }).toLowerCase()
 
     let rankings = [];
-
-
+    
     const url = `https://www.hltv.org/valve-ranking/teams/${year}/${lettermonth}/${day}/region/Europe`;
-    console.log(url)
     try {
         await page.goto(url, { waitUntil: "domcontentloaded", timeout: 10000 });
 
@@ -58,19 +57,21 @@ export async function checkRanking(path) {
             const jsonDateFile = JSON.parse(data); //fecha fichero
 
             //console.log("Dia Fichero: " + jsonDateFile.date.day + " Mes Fichero: " + jsonDateFile.date.month + " Anio fichero: " + jsonDateFile.date.year)
-           // console.log("Dia Actual: " + (date.getDay()) + " Mes Actual: " + (date.getMonth() + 1) + " Anio Actual: " + date.getFullYear())
-           
-            if (jsonDateFile.date.day === (date.getDay() - 1) && jsonDateFile.date.year === date.getFullYear() && jsonDateFile.date.month === (date.getMonth() + 1)) {
+            //console.log("Dia Actual: " + date.getDate() + " Mes Actual: " + (date.getMonth() + 1) + " Anio Actual: " + date.getFullYear())
+
+            if (jsonDateFile.date.day === (date.getDate()) && jsonDateFile.date.year === date.getFullYear() && jsonDateFile.date.month === (date.getMonth() + 1)) {
                 itsToday = true;
             }
-            console.log("ES HOY: " + itsToday)
+            //console.log("ES HOY: " + itsToday)
 
             if (!itsToday) {
                 // Sino es hoy, obtiene el ranking más reciente scrap
-                latestData = await getLatestValveRanking(date.getFullYear(), date.getDay() - 1);
+                latestData = await getLatestValveRanking(date.getFullYear(), date.getDate());
                 if (latestData.length != 0) {
                     // Escribe el nuevo ranking en el archivo
                     await printLatestRankingValveJson(latestData, path);
+                   // db=new ComponentBd("localhost")
+                   // db.update("teams",latestData.rankings.rank,{team_name: latestData.rankings.team}) //ANIADIR CAMPO RANK A LA TABLA TEAMS EN MYSQL
                 } else {
                     //console.log("Leyendo del fichero...")
                     latestData = JSON.parse(fs1.readFileSync(path)); //sino existe ranking en hltv se lee del fichero
