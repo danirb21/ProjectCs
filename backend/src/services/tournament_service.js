@@ -15,7 +15,7 @@ async function getEvents(startdate, endDate, limit) {
     let europeanTournaments
     let eventos = []
     try {
-        await axios.get(process.env.API_LIQUIPEDIA_URL_CS + "&conditions=[[startdate::>" + startdate + "]] AND [[enddate::<" + endDate + "]]" + "&limit=" + limit, { headers }).then(resp => {
+        await axios.get(process.env.API_LIQUIPEDIA_URL_CS + "tournament?wiki=counterstrike&conditions=[[startdate::>" + startdate + "]] AND [[enddate::<" + endDate + "]]" + "&limit=" + limit, { headers }).then(resp => {
             const tournaments = resp.data.result;
             // console.log(tournaments)
             europeanTournaments = tournaments.filter(tournament => {
@@ -46,7 +46,7 @@ async function insertEvents(startdate, endDate, limit, host) {
 
     for (const torneo of torneos) {
         try {
-            await connection.insert("events", torneo, "");
+            await connection.insert("events", torneo);
         } catch (error) {
             console.error("Error actualizando torneo", error);
         }

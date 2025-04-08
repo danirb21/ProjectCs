@@ -1,10 +1,11 @@
 class Team{
-    id
-    name
+    team_id
+    team_name
+    ranking
 
     constructor(id, name){
-        this.id=id;
-        this.name=name;
+        this.team_id=id;
+        this.team_name=name;
     }
 }
 module.exports=Team;
