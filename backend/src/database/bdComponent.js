@@ -56,6 +56,7 @@ class ComponentBd {
                 whereParts.push(`${key} = ?`);
                 values.push(condition);
             }
+
         }
 
         const whereClause = whereParts.join(" AND ");
@@ -75,7 +76,7 @@ class ComponentBd {
         return result.affectedRows > 0;
     }
     async close() {
-        this.pool.end();
+        await this.pool.end();
     }
 }
 

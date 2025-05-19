@@ -67,21 +67,6 @@ export async function checkRanking(path) {
             if (!itsToday) {
                 // Sino es hoy, obtiene el ranking más reciente scrap
                 latestData = await getLatestValveRanking(date.getFullYear(), date.getDate());
-                const bd=new ComponentBd("localhost")
-                for(const team of latestData.rankings){
-                    const teamfirstword=team.team.split(" ")[0].toLowerCase
-                    bd.update("teams", {ranking: team.rank},
-                        {team_name: {
-                            raw:"LOWER(SUBSTRING_INDEX(team_name, ' ', 1)) = ?",
-                            value:teamfirstword
-                         }
-                        } 
-                    ).then(data =>{
-                        console.log("ROW AFFECTED: "+data)
-                    }).catch(err =>{
-                        console.log(err)
-                    })
-                }
                 console.log("REALIZADO!!!")
                 if (latestData.length != 0) {
                     // Escribe el nuevo ranking en el archivo

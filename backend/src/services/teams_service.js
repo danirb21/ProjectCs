@@ -2,65 +2,205 @@ import path from "path";
 import ComponentBd from "../database/bdComponent.js";
 import Team from "../models/team.js";
 import { fileURLToPath } from "url";
-import axios from "axios"
+import axios from "axios";
+import fs from "fs";
 import dotenv from "dotenv";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 const headers = {
-    "accept": "application/json",
-    "authorization": "Apikey " + process.env.API_KEY
-}
+    accept: "application/json",
+    authorization: "Apikey " + process.env.API_KEY,
+};
 
-async function getTeams(earning, isDisband, limit) {
-    let teams = []
-    let resApi
-    let url
+async function getTeamsApi(earning, isDisband, limit) {
+    let teams = [];
+    let url;
+
     if (!isDisband) {
-        url = process.env.API_LIQUIPEDIA_URL_CS + "team?wiki=counterstrike&conditions=[[earnings::>" + earning + "]] AND [[status::active]]&limit=" + limit
+        url =
+            process.env.API_LIQUIPEDIA_URL_CS +
+            "team?wiki=counterstrike&conditions=[[earnings::>" +
+            earning +
+            "]] AND [[status::active]]&limit=" +
+            limit;
     } else {
-        url = process.env.API_LIQUIPEDIA_URL + "&conditions=[[earnings::" + earning + "]]&limit=" + limit
+        url =
+            process.env.API_LIQUIPEDIA_URL +
+            "&conditions=[[earnings::" +
+            earning +
+            "]]&limit=" +
+            limit;
     }
-    try {
-        await axios.get(url, { headers }).then(response => {
-            const teamsJson = response.data.result
-            console.log(Array.isArray(teamsJson))
-            teamsJson.forEach(element => {
-                teams.push(new Team(element.pageid, element.name))
 
+    try {
+        const response = await axios.get(url, { headers });
+        const teamsJson = response.data.result;
+
+        if (Array.isArray(teamsJson)) {
+            teamsJson.forEach((element) => {
+                teams.push(new Team(element.pageid, element.name));
             });
-        })
+        } else {
+            console.warn("Respuesta inesperada de la API:", teamsJson);
+        }
     } catch (err) {
-        console.log(err)
+        console.log("Error obteniendo equipos de la API:", err.message);
     }
-    return teams
+
+    return teams;
 }
+
+async function getTeamApi(nameTeam) {
+    
+}
+
+//FUNCION DE SI EXISTE ESE EQUIPO EN LA API SI ES ASI COGER SU ID Y ASIGNARLO EN EL UPDATE TEAM
 
 async function insertTeams(earning, isDisband, limit) {
-    const connection = new ComponentBd("localhost")
-    const teams = await getTeams(earning, false, limit)
-    for (const team of teams) {
-        try {
-            await connection.insert("teams", team)
-        } catch (error) {
-            console.log(error)
+    const connection = new ComponentBd("localhost");
+
+    try {
+        const teams = await getTeamsApi(earning, isDisband, limit);
+
+        for (const team of teams) {
+            try {
+                await connection.insert("teams", team);
+            } catch (error) {
+                console.log("Error insertando equipo:", error.message);
+            }
         }
+    } finally {
+        await connection.close();
     }
-    await connection.close()
+}
+async function updateTeams() {
+    const connection = new ComponentBd("localhost");
+
+    try {
+        const teams = await connection.select("teams"); // devuelve tabla teams
+        const rankings = JSON.parse(
+            fs.readFileSync("../data/lastRankingValve.json", "utf-8")
+        );
+
+        console.log("Tamaño BD: " + teams.length + " | Tamaño API: " + rankings.rankings.length);
+
+        let i = 0;
+
+        for (const team of teams) {
+            const nameTeam = estandarizarNombre(team.team_name);
+
+            const match = rankings.rankings.find((equipoRanking) => {
+                const nombreRanking = estandarizarNombre(equipoRanking.team);
+                if(nombreRanking===nameTeam){
+                    console.log("MATCH!! "+nameTeam +"  "+nombreRanking)
+                }
+                return nombreRanking === nameTeam;
+            });
+
+            if (match) {
+                // console.log(`Match: ${team.team_id}  ${match.team}`);
+                try {
+                    await connection.update(
+                        "teams",
+                        { ranking: match.rank },
+                        { team_id: team.team_id }
+                    );
+                } catch (error) {
+                    console.error(
+                        `Error actualizando el equipo ${team.team_name}: ${error.message}`
+                    );
+                }
+            }
+
+            i++;
+            if (i === 151) {
+                console.log(`Equipo 151: ${team.team_name}`);
+            }
+        }
+    } catch (err) {
+        console.error("Error en updateTeams:", err.message);
+    } finally {
+        await connection.close();
+    }
+}
+//FUNCION VERIFICA EQUIPOS EN EL VRS NO ESTAN EN LA BD Y SI NO ESTAN SE UPDATEA
+async function updateTeam() {
+    const connection = new ComponentBd("localhost");
+    try {
+        const teams = await connection.select("teams"); // Tabla de equipos en la BD
+        const rankings = JSON.parse(
+            fs.readFileSync("../data/lastRankingValve.json", "utf-8")
+        );
+
+        console.log("Tamaño BD: " + teams.length + " | Tamaño API: " + rankings.rankings.length);
+
+        let i = 0;
+
+        for (const equipoRanking of rankings.rankings) {
+            const nombreRanking = estandarizarNombre(equipoRanking.team);
+
+            const match = teams.find((team) => {
+                const nombreTeam = estandarizarNombre(team.team_name);
+                return nombreTeam === nombreRanking;
+            });
+
+            if (!match) {
+
+                try {
+                    await connection.insert("teams", {
+                        team_name: equipoRanking.team,
+                        team_id:i, //medida temporal
+                        ranking:equipoRanking.rank
+                        // Aquí puedes agregar más campos si están disponibles en el objeto equipoRanking
+                    });
+                    console.log(`Insertado: ${equipoRanking.team}`);
+                } catch (error) {
+                    console.error(`Error insertando el equipo ${equipoRanking.team}: ${error.message}`);
+                }
+            }
+
+            i++;
+            if (i === 151) {
+                console.log(`Equipo 151 en API: ${equipoRanking.team}`);
+            }
+        }
+    } catch (err) {
+        console.error("Error en updateTeams:", err.message);
+    } finally {
+        await connection.close();
+    }
 }
 
-// updatear ranking segun el nombre. En Proceso
+
+// Helpers
 function normalizarNombre(nombre) {
     return nombre
         .toLowerCase()
-        .replace(/[^a-z0-9]/g, '');
+        .replace(/\b(gaming|esports)\b$/g, "")  // Elimina solo "gaming" o "esports" si están al final
+        .replace(/[^a-z0-9]/g, "")              // Elimina caracteres no alfanuméricos
+        .trim();
 }
 
-const equivalencias = {
-    "natus vincere": "NaVi",
-    "team vitality": "Vitality",
-    "faze clan": "FaZe"
-};
 
-insertTeams(10000, false, 164)
+
+function estandarizarNombre(nombreOriginal) {
+    const equivalencias = {
+        "vitality": "teamvitality",
+        "tnl": "teamnextlevel",
+        "faze": "fazeclan",
+        "liquid": "teamliquid"
+    };
+    const normalizado = normalizarNombre(nombreOriginal);
+    return equivalencias[normalizado] || normalizado;
+}
+
+
+updateTeam().then(() => {
+    console.log("Finalizado");
+});
+
+// Descomentar si querés insertar equipos:
+// insertTeams(10000, false, 164);
