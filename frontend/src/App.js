@@ -1,4 +1,4 @@
-import logo from './logo.svg';
+/*import logo from './logo.svg';
 import './App.css';
 
 function App() {
@@ -23,3 +23,26 @@ function App() {
 }
 
 export default App;
+*/
+// App.js
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import TablaRankings from './components/TablaRankings';
+import TeamDetails from './components/team-details';
+
+function App() {
+  return (
+    <Router>
+      <div style={{ maxWidth: '800px', margin: 'auto' }}>
+        <h1>Ranking de Equipos</h1>
+        <Routes>
+          <Route path="/" element={<TablaRankings />} />
+          <Route path="/team-details" element={<TeamDetails />} />
+        </Routes>
+      </div>
+    </Router>
+  );
+}
+
+export default App;
+
