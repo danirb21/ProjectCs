@@ -11,7 +11,7 @@ export default function TablaRankings() {
     sessionStorage.setItem('team', JSON.stringify(team));
     sessionStorage.setItem('points', JSON.stringify(points));
     sessionStorage.setItem('region', JSON.stringify(region));
-     window.open("/components/team-details.jsx", "_blank");
+     window.open("/team-details", "_blank");
   };
 
   useEffect(() => {
