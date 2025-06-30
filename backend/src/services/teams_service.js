@@ -53,8 +53,28 @@ async function getTeamsApi(earning, isDisband, limit) {
     return teams;
 }
 
-async function getTeamApi(nameTeam) {
+export async function getTeamApi(nameTeam) {
+    let team;
+    let name = nameTeam;
+    let url
+  /*  if (name.toLowerCase() != estandarizarNombre(nameTeam)) {
+        console.log("Equipo que llega: "+name+"  Equipo estandarizado: "+estandarizarNombre(nameTeam))
+        url = process.env.API_LIQUIPEDIA_URL_CS + "team?wiki=counterstrike&conditions=[[name::" + estandarizarNombre(nameTeam) + "]]"
+    } else {
+        console.log(name)
+        url = process.env.API_LIQUIPEDIA_URL_CS + "team?wiki=counterstrike&conditions=[[name::" + name + "]]"
+    }
+     */
     
+    url = process.env.API_LIQUIPEDIA_URL_CS + "team?wiki=counterstrike&conditions=[[name::" + name + "]]"
+    console.log(url)
+    try {
+        const response = await axios.get(url, { headers });
+        team = response.data.result;
+    } catch (err) {
+        console.log("Error obteniendo equipos de la API:", err.message);
+    }
+    return team;
 }
 
 //FUNCION DE SI EXISTE ESE EQUIPO EN LA API SI ES ASI COGER SU ID Y ASIGNARLO EN EL UPDATE TEAM
@@ -94,8 +114,8 @@ async function updateTeams() {
 
             const match = rankings.rankings.find((equipoRanking) => {
                 const nombreRanking = estandarizarNombre(equipoRanking.team);
-                if(nombreRanking===nameTeam){
-                    console.log("MATCH!! "+nameTeam +"  "+nombreRanking)
+                if (nombreRanking === nameTeam) {
+                    console.log("MATCH!! " + nameTeam + "  " + nombreRanking)
                 }
                 return nombreRanking === nameTeam;
             });
@@ -152,8 +172,8 @@ async function updateTeam() {
                 try {
                     await connection.insert("teams", {
                         team_name: equipoRanking.team,
-                        team_id:i, //medida temporal
-                        ranking:equipoRanking.rank
+                        team_id: i, //medida temporal
+                        ranking: equipoRanking.rank
                         // Aquí puedes agregar más campos si están disponibles en el objeto equipoRanking
                     });
                     console.log(`Insertado: ${equipoRanking.team}`);
@@ -168,7 +188,9 @@ async function updateTeam() {
             }
         }
     } catch (err) {
-        console.error("Error en updateTeams:", err.message);
+        if (err != null) {
+            console.error("Error en updateTeams:", err.message);
+        }
     } finally {
         await connection.close();
     }
@@ -197,10 +219,12 @@ function estandarizarNombre(nombreOriginal) {
     return equivalencias[normalizado] || normalizado;
 }
 
-
+/*
 updateTeam().then(() => {
     console.log("Finalizado");
 });
+*/
 
+export default getTeamApi
 // Descomentar si querés insertar equipos:
 // insertTeams(10000, false, 164);

@@ -34,7 +34,6 @@ function App() {
   return (
     <Router>
       <div style={{ maxWidth: '800px', margin: 'auto' }}>
-        <h1>Ranking de Equipos</h1>
         <Routes>
           <Route path="/" element={<TablaRankings />} />
           <Route path="/team-details" element={<TeamDetails />} />

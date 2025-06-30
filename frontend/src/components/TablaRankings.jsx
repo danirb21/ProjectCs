@@ -7,10 +7,8 @@ export default function TablaRankings() {
 
   const handlerRowClick = (rank, team, points, region) => {
     // You may want to navigate to a details page or open a modal here
-    sessionStorage.setItem('rank', JSON.stringify(rank));
-    sessionStorage.setItem('team', JSON.stringify(team));
-    sessionStorage.setItem('points', JSON.stringify(points));
-    sessionStorage.setItem('region', JSON.stringify(region));
+    const teamInfo = { rank, team, points, region };
+    sessionStorage.setItem('teamInfo', JSON.stringify(teamInfo));
      window.open("/team-details", "_blank");
   };
 
@@ -31,7 +29,7 @@ export default function TablaRankings() {
   if (rankings.length === 0) return <p style={loadingStyle}>No hay rankings para mostrar.</p>;
 
   return (
-    <table style={tableStyle}>
+    <><h1>Ranking de Equipos</h1><table style={tableStyle}>
       <thead>
         <tr style={headerRowStyle}>
           <th style={thStyle}>Rank</th>
@@ -56,7 +54,7 @@ export default function TablaRankings() {
           </tr>
         ))}
       </tbody>
-    </table>
+    </table></>
   );
 }
 

@@ -34,11 +34,24 @@ const valueStyle = {
 
 function TeamDetails() {
   const [teamInfo, setTeamInfo] = useState(null);
+  const [logoUrl, setLogoUrl] = useState(null);
 
   useEffect(() => {
-    const rank = sessionStorage.getItem('rank');
-    if (rank) {
-      setTeamInfo(JSON.parse(rank));
+    const storedTeamInfo = sessionStorage.getItem('teamInfo');
+    if (storedTeamInfo) {
+      const parsed = JSON.parse(storedTeamInfo);
+      setTeamInfo(parsed);
+
+      fetch(`http://localhost:5000/team/${encodeURIComponent(parsed.team)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data) && data.length > 0 && data[0].logourl) {
+            setLogoUrl(data[0].logourl);
+          }
+        })
+        .catch((err) => {
+          console.error('Error al obtener el logo del equipo:', err.message);
+        });
     }
   }, []);
 
@@ -48,14 +61,15 @@ function TeamDetails() {
 
   return (
     <div style={containerStyle}>
-      {/* Avatar / Logo del equipo */}
       <img
-        src={`https://via.placeholder.com/150?text=${encodeURIComponent(team)}`}
+        src={logoUrl
+          ? `http://localhost:5000/image-proxy?url=${encodeURIComponent(logoUrl)}`
+          : `https://via.placeholder.com/150?text=${encodeURIComponent(team)}`
+        }
         alt={`Logo de ${team}`}
         style={avatarStyle}
       />
 
-      {/* Información del equipo */}
       <div>
         <div style={labelStyle}>Equipo</div>
         <div style={valueStyle}>{team}</div>
