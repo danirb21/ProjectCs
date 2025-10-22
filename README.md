@@ -41,7 +41,7 @@ The backend runs at http://localhost:5000.
 | ------------------ | ------ | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | `/image-proxy`     | GET    | Returns an image from an external URL through a proxy (avoids CORS issues)                            | `url` (query string) – the URL of the image                                                |
 | `/team/:name`  | GET    | Returns team information including the Liquipedia logo URL                                            | `name` (path parameter)
-|`/latest-valve-ranking`| GET    | Returns the latest vale ranking data (VRS)                                                                       | None                                                                                       |
+|`/latest-valve-ranking`| GET    | Returns the latest valve ranking data (VRS)                                                                       | None                                                                                       |
 
 ## 3. Setup Frontend
 ```
