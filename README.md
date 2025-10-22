@@ -40,7 +40,7 @@ The backend runs at http://localhost:5000.
 | Endpoint           | Method | Description                                                                                           | Parameters / Query                                                                         |
 | ------------------ | ------ | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | `/image-proxy`     | GET    | Returns an image from an external URL through a proxy (avoids CORS issues)                            | `url` (query string) – the URL of the image                                                |
-| `/team/:teamName`  | GET    | Returns team information including the Liquipedia logo URL                                            | `teamName` (path parameter) – the name of the team (normalized using `estandarizarNombre`) |
+| `/team/:teamName`  | GET    | Returns team information including the Liquipedia logo URL                                            | `teamName` (path parameter)
 | `/rankings`        | GET    | Returns the latest ranking data                                                                       | None                                                                                       |
 | `/update-rankings` | GET    | Checks if today’s ranking has already been fetched. If not, performs scraping and updates the ranking | None                                                                                       |
 
