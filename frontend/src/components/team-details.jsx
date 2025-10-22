@@ -12,13 +12,13 @@ const containerStyle = {
   textAlign: 'center',
 };
 
-const avatarStyle = {
+const logoStyle = {
   width: '120px',
   height: '120px',
-  borderRadius: '50%',
-  objectFit: 'cover',
+  objectFit: 'contain', // Muestra la imagen completa sin recortar
   border: '3px solid #3a3f3d',
   marginBottom: '20px',
+  backgroundColor: '#fff', // Opcional: mejora visibilidad de imágenes con fondo transparente
 };
 
 const labelStyle = {
@@ -35,14 +35,15 @@ const valueStyle = {
 function TeamDetails() {
   const [teamInfo, setTeamInfo] = useState(null);
   const [logoUrl, setLogoUrl] = useState(null);
-
+// LLAMAR A LA API TEAM GUARDAR LOS DATOS A DESEAR Y MOSTRAR MAS INFORMACION DE ESE TEAM
   useEffect(() => {
     const storedTeamInfo = sessionStorage.getItem('teamInfo');
     if (storedTeamInfo) {
       const parsed = JSON.parse(storedTeamInfo);
       setTeamInfo(parsed);
+      const teamToFetch = parsed.normalizedTeam;
 
-      fetch(`http://localhost:5000/team/${encodeURIComponent(parsed.team)}`)
+      fetch(`http://localhost:5000/team/${encodeURIComponent(teamToFetch)}`)
         .then((res) => res.json())
         .then((data) => {
           if (Array.isArray(data) && data.length > 0 && data[0].logourl) {
@@ -67,7 +68,7 @@ function TeamDetails() {
           : `https://via.placeholder.com/150?text=${encodeURIComponent(team)}`
         }
         alt={`Logo de ${team}`}
-        style={avatarStyle}
+        style={logoStyle}
       />
 
       <div>

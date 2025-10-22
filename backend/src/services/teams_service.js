@@ -67,8 +67,9 @@ export async function getTeamApi(nameTeam) {
      */
     
     url = process.env.API_LIQUIPEDIA_URL_CS + "team?wiki=counterstrike&conditions=[[name::" + name + "]]"
-    console.log(url)
+    //console.log(url)
     try {
+        console.log(url)
         const response = await axios.get(url, { headers });
         team = response.data.result;
     } catch (err) {
@@ -198,27 +199,67 @@ async function updateTeam() {
 
 
 // Helpers
-function normalizarNombre(nombre) {
-    return nombre
-        .toLowerCase()
-        .replace(/\b(gaming|esports)\b$/g, "")  // Elimina solo "gaming" o "esports" si están al final
-        .replace(/[^a-z0-9]/g, "")              // Elimina caracteres no alfanuméricos
-        .trim();
+/*function normalizarNombre(nombre) {
+  return nombre
+    .toLowerCase()
+    .replace(/\b(gaming|esports)\b$/g, "")
+    .replace(/[^a-z0-9]/g, "")
+    .trim();
 }
-
-
+*/
 
 function estandarizarNombre(nombreOriginal) {
-    const equivalencias = {
-        "vitality": "teamvitality",
-        "tnl": "teamnextlevel",
-        "faze": "fazeclan",
-        "liquid": "teamliquid"
-    };
-    const normalizado = normalizarNombre(nombreOriginal);
-    return equivalencias[normalizado] || normalizado;
-}
+   const equivalencias = {
+  // Básicos
+  "Vitality": "Team Vitality",
+  "FaZe": "FaZe Clan",
+  "Liquid": "Team Liquid",
+  "G2": "G2 Esports",
+  "NAVI": "Natus Vincere",
+  "Ninjas in Pyjamas": "Ninjas in Pyjamas",
+  "MOUZ": "MOUZ",
+  "Virtus.pro": "Virtus.pro",
+  "Astralis": "Astralis",
+  "Fnatic": "Fnatic",
+  "ENCE": "ENCE",
+  "Heroic": "Heroic",
+  "FURIA": "FURIA",
+  "BIG": "BIG",
+  "OG": "OG Esports",
+  "9INE": "9INE",
+  "Aurora": "Aurora Gaming",
+  "SINNERS": "SINNERS Esports",
+  "Preasy": "Preasy Esport",
 
+  // Equipos adicionales basados en el Top 50 de HLTV
+  "Spirit": "Team Spirit",
+  "F3LIA": "F3LIA",
+  "Falcons": "Team Falcons",
+  "3DMAX": "3DMAX",
+  "paiN": "paiN Gaming",
+  "Legacy": "Legacy",
+  "GamerLegion": "GamerLegion",
+  "TyLoo": "TYLOO",
+  "Inner Circle": "Inner Circle",
+  "SAW": "SAW",
+  "MIBR": "MIBR",
+  "9z": "9z Team",
+  "ECSTATIC": "ECSTATIC",
+  "Imperial": "Imperial Esports",
+  "Sharks": "Sharks Esports",
+  "Partizan": "Partizan",
+  "Alliance": "Alliance",
+  "Bestia": "Bestia",
+  "Sangal": "Sangal",
+  "RED Canids": "RED Canids",
+  "Gaiming Gladiators": "Gaiming Gladiators",
+
+  // Variaciones y nombres alternativos
+  "The MongolZ": "The MongolZ",
+  "Falcons Esports": "Team Falcons"
+};
+return equivalencias[nombreOriginal] || nombreOriginal;
+}
 /*
 updateTeam().then(() => {
     console.log("Finalizado");
@@ -226,5 +267,6 @@ updateTeam().then(() => {
 */
 
 export default getTeamApi
+export {estandarizarNombre}
 // Descomentar si querés insertar equipos:
 // insertTeams(10000, false, 164);

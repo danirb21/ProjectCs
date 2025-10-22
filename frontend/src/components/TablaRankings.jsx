@@ -1,15 +1,16 @@
 // src/components/TablaRankings.jsx
 import React, { useEffect, useState } from 'react';
+import {useNavigate} from "react-router-dom";
 
 export default function TablaRankings() {
   const [rankings, setRankings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate=useNavigate();
 
-  const handlerRowClick = (rank, team, points, region) => {
-    // You may want to navigate to a details page or open a modal here
-    const teamInfo = { rank, team, points, region };
+  const handlerRowClick = (rank, team, points, region, normalizedTeam) => {
+    const teamInfo = { rank, team, points, region, normalizedTeam};
     sessionStorage.setItem('teamInfo', JSON.stringify(teamInfo));
-     window.open("/team-details", "_blank");
+    navigate("/team-details");
   };
 
   useEffect(() => {
@@ -39,13 +40,13 @@ export default function TablaRankings() {
         </tr>
       </thead>
       <tbody>
-        {rankings.map(({ rank, team, points, region }, index) => (
+        {rankings.map(({ rank, team, points, region, normalizedTeam }, index) => (
           <tr
             key={rank}
             style={index % 2 === 0 ? evenRowStyle : oddRowStyle}
             onMouseEnter={e => e.currentTarget.style.backgroundColor = '#3a3f3d'}
             onMouseLeave={e => e.currentTarget.style.backgroundColor = index % 2 === 0 ? '#2c2f2e' : '#252827'}
-            onClick={() => handlerRowClick(rank, team, points, region)}
+            onClick={() => handlerRowClick(rank, team, points, region, normalizedTeam)}
           >
             <td style={tdStyle}>{rank}</td>
             <td style={tdStyle}>{team}</td>

@@ -26,6 +26,7 @@ app.get("/latest-valve-ranking", async (req, res) => {
     console.log(err)
   })
 });
+
 app.get("/team/:name", async (req, res) => {
   const { name } = req.params;
   const teamData = await getTeamApi(name);
@@ -36,6 +37,7 @@ app.get("/team/:name", async (req, res) => {
     res.status(500).json({ error: "Error al obtener datos del equipo." });
   }
 });
+
 app.get("/image-proxy", async (req, res) => {
   const imageUrl = req.query.url;
 
@@ -57,3 +59,5 @@ app.get("/image-proxy", async (req, res) => {
     res.status(500).send('Error al obtener la imagen');
   }
 });
+
+app.get("/estandarizar-nombre")

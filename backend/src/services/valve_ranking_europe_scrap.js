@@ -2,6 +2,8 @@ import puppeteer from "puppeteer"
 import fs from "fs/promises"
 import fs1 from "fs"
 import ComponentBd from "../database/bdComponent.js"
+import { estandarizarNombre } from "./teams_service.js"
+
 export async function getLatestValveRanking(year, day) {
     const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
@@ -33,6 +35,11 @@ export async function getLatestValveRanking(year, day) {
                     };
                 });
             });
+             // 🔹 Agrega la versión normalizada aquí:
+            rankings = rankings.map(t => ({
+            ...t,
+            normalizedTeam: estandarizarNombre(t.team)
+      }));
         } else {
             throw new Error(`No se encontró el ranking en la fecha: ${year}-${month}-${day}`);
         }
