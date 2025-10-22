@@ -15,7 +15,7 @@ Image proxy: Displays Liquipedia logos without CORS issues.
 
 ## 🛠 Technologies Used
 
-Frontend: React, Axios
+Frontend: React
 
 Backend: Node.js, Express, Puppeteer (for scraping)
 
