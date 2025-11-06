@@ -1,30 +1,38 @@
-<h1>ProjectCs</h1>
+# ProjectCs
 
-ProjectCs is a web application that maintains the weekly CS2 team rankings and displays them through an interactive web interface.
+**ProjectCs** is a web application currently in development that tracks and displays weekly **CS2 team rankings** through an interactive web interface.
 
-The backend updates the ranking daily on demand: it checks if today's ranking has already been fetched and only performs scraping if the data is outdated.
+This project is being developed as a learning and experimentation exercise, with plans to expand functionality over time.
 
-## Key Features
+---
 
-On-demand daily ranking updates: The backend checks if today’s ranking is already available and updates it if needed.
+## Project Overview
 
-Web visualization: Displays teams with ranking, points, region, and logo.
+The backend updates the ranking data on demand — it checks whether the current day’s ranking has already been fetched and performs scraping only when needed.
 
-Team details: Clicking on a team shows detailed information and its logo from the Liquipedia API.
+The frontend provides a simple visualization of the teams, their points, regions, and logos.
 
-Image proxy: Displays Liquipedia logos without CORS issues.
+---
 
-## 🛠 Technologies Used
+## Current Features
 
-Frontend: React
+- **On-demand ranking updates:** The backend automatically verifies if today’s data is already stored before fetching new information.  
+- **Team visualization:** Interactive frontend showing teams, ranking, and points.  
+- **Team details:** Clicking on a team displays additional info (via Liquipedia API).  
+- **Image proxy:** Allows Liquipedia logos to load without CORS issues.
 
-Backend: Node.js, Express, Puppeteer (for scraping)
+---
 
-Database: Minimal usage currently (planned for future enhancements)
+## Technologies Used
 
-Other tools: sessionStorage for temporary team data on the frontend
+- **Frontend:** React  
+- **Backend:** Node.js, Express, Puppeteer (for scraping)  
+- **Database:** MySQL *(planned for future integration)*  
+- **Other tools:** `sessionStorage` for temporary data handling on the frontend  
 
-## ⚙️ Installation & Running
+---
+
+## ⚙️ Installation & Running (Development mode)
 
 ## 1. Clone the repository
     git clone https://github.com/danirb21/ProjectCs.git
